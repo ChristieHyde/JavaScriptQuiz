@@ -26,14 +26,27 @@ const QUESTION_SET = [
     }
 ]
 
-var startQuizBtn = document.querySelector("#start_btn");
 var quizBoard = document.querySelector("#quiz_board");
 
 var questionList;
 var currentCorrectAnswer;
 var score = 0;
 
-startQuizBtn.addEventListener('click', startQuiz);
+var leaderboard = [];
+
+init();
+
+function init() {
+    // Add an event listener to the start button
+    var startQuizBtn = document.querySelector("#start_btn");
+    startQuizBtn.addEventListener('click', startQuiz);
+
+    // Load leaderboard from local storage if it exists
+    var localLeaderboard = JSON.parse(localStorage.getItem("leaderboard"));
+    if (localLeaderboard !== null) {
+      leaderboard = localLeaderboard;
+    }
+}
 
 function startQuiz() {
     createBoard();
@@ -83,6 +96,46 @@ function populateQuestion(question) {
     }
 }
 
+// Quiz end screen initialisation function
+function endQuiz(heading) {
+    // Clear the quiz board
+    while (quizBoard.childElementCount > 0) {
+        quizBoard.children[0].remove();
+    }
+
+    // Create and populate end screen content
+    var endingHeading = document.createElement("h2");
+    endingHeading.textContent = heading;
+    quizBoard.append(endingHeading);
+
+    var endingText = document.createElement("p");
+    endingText.textContent = "Your final score is " + score + ". Enter your initials below to be added to the leaderboard!";
+    quizBoard.append(endingText);
+
+    var initialsForm = document.createElement("input");
+    initialsForm.setAttribute("id", "initials");
+    initialsForm.setAttribute("type", "text");
+    initialsForm.setAttribute("placeholder", "Enter your initials here");
+    quizBoard.append(initialsForm);
+
+    var submitButton = document.createElement("button");
+    submitButton.textContent = "Submit";
+    submitButton.addEventListener("click", saveAndReset);
+    quizBoard.append(submitButton);
+}
+
+// Function to save scores to local memory and return to default start screen;
+function saveAndReset() {
+    var initialsForm = document.querySelector("#initials");
+    if (initialsForm.value.trim()) {
+        leaderboard.push({initials: initialsForm.value.trim(), score: score});
+    }
+    localStorage.setItem("leaderboard", JSON.stringify(leaderboard));
+
+    score = 0;
+    location.reload();
+}
+
 // Function to check if an answer is correct, and if the quiz should end
 function selectAnswer() {
     if (this.textContent === currentCorrectAnswer) {
@@ -92,9 +145,8 @@ function selectAnswer() {
     if (questionList.length > 0) {
         populateQuestion(questionList.shift());
     } else {
-        // end quiz
+        endQuiz("That's the end of the quiz!");
     }
-    console.log("Score: " + score);
 }
 
 // Function to randomise the order of a list
