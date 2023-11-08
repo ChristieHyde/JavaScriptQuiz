@@ -27,6 +27,7 @@ const QUESTION_SET = [
 ]
 
 var quizBoard = document.querySelector("#quiz_board");
+var scoreboard = document.querySelector("#scoreboard");
 
 var questionList;
 var currentCorrectAnswer;
@@ -37,14 +38,28 @@ var leaderboard = [];
 init();
 
 function init() {
-    // Add an event listener to the start button
-    var startQuizBtn = document.querySelector("#start_btn");
-    startQuizBtn.addEventListener('click', startQuiz);
-
+    console.log(location.pathname);
     // Load leaderboard from local storage if it exists
     var localLeaderboard = JSON.parse(localStorage.getItem("leaderboard"));
     if (localLeaderboard !== null) {
-      leaderboard = localLeaderboard;
+        leaderboard = localLeaderboard;
+    }
+
+    // If the page is the leaderboard, populate it
+    if (location.pathname.endsWith("scoreboard.html")) {
+        leaderboard.forEach(function(entry) {
+            var leaderboardEntry = document.createElement("li");
+            console.log(entry);
+            leaderboardEntry.textContent = entry.score.toLocaleString('en-US',
+                {minimumIntegerDigits: 2, useGrouping: false}) + " - " +
+                entry.initials;
+            scoreboard.append(leaderboardEntry);
+        });
+    // If the page is the index, set it up
+    } else {
+        // Add an event listener to the start button
+        var startQuizBtn = document.querySelector("#start_btn");
+        startQuizBtn.addEventListener('click', startQuiz);
     }
 }
 
@@ -55,9 +70,7 @@ function startQuiz() {
 // Quiz initialisation function
 function createBoard() {
     // Clear the quiz board
-    while (quizBoard.childElementCount > 0) {
-        quizBoard.children[0].remove();
-    }
+    quizBoard.innerHTML = "";
 
     // Create question heading and four choice buttons
     var questionHeading = document.createElement("h3");
@@ -99,9 +112,7 @@ function populateQuestion(question) {
 // Quiz end screen initialisation function
 function endQuiz(heading) {
     // Clear the quiz board
-    while (quizBoard.childElementCount > 0) {
-        quizBoard.children[0].remove();
-    }
+    quizBoard.innerHTML = "";
 
     // Create and populate end screen content
     var endingHeading = document.createElement("h2");
@@ -109,7 +120,8 @@ function endQuiz(heading) {
     quizBoard.append(endingHeading);
 
     var endingText = document.createElement("p");
-    endingText.textContent = "Your final score is " + score + ". Enter your initials below to be added to the leaderboard!";
+    endingText.textContent = "Your final score is " + score + 
+        ". Enter your initials below to be added to the leaderboard!";
     quizBoard.append(endingText);
 
     var initialsForm = document.createElement("input");
@@ -126,12 +138,17 @@ function endQuiz(heading) {
 
 // Function to save scores to local memory and return to default start screen;
 function saveAndReset() {
+    // Save the score achieved and initials entered
     var initialsForm = document.querySelector("#initials");
     if (initialsForm.value.trim()) {
         leaderboard.push({initials: initialsForm.value.trim(), score: score});
     }
+    // Sort the leaderboard in descending score order, and save to local
+    // storage
+    leaderboard.sort((a, b) => b.score - a.score);
     localStorage.setItem("leaderboard", JSON.stringify(leaderboard));
 
+    // Reset the page;
     score = 0;
     location.reload();
 }
