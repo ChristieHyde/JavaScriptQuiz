@@ -55,6 +55,14 @@ function init() {
                 entry.initials;
             leaderboardEl.append(entryEl);
         });
+
+        // Add an event listener for the clear-leaderboard button
+        var clearBtn = document.querySelector("#clear_btn");
+        console.log(clearBtn);
+        clearBtn.addEventListener('click', function () {
+            localStorage.removeItem("leaderboard");
+            leaderboardEl.innerHTML = "";
+        });
     // If the page is the index, set it up
     } else {
         // Add an event listener to the start button
