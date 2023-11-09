@@ -1,6 +1,5 @@
-// const MAX_TIME = 75
-// const TIME_DEDUCT = 10
-// const NUM_QUESTIONS = 5
+const MAX_TIME = 75
+const TIME_DEDUCT = 10
 const NUM_CHOICES = 4;
 
 const QUESTION_SET = [
@@ -26,11 +25,14 @@ const QUESTION_SET = [
     }
 ]
 
-var quizBoard = document.querySelector("#quiz_board");
-var scoreboard = document.querySelector("#scoreboard");
+var quizBoardEl = document.querySelector("#quiz_board");
+var leaderboardEl = document.querySelector("#scoreboard");
+var timerEl = document.querySelector("#timer");
 
 var questionList;
 var currentCorrectAnswer;
+var timer;
+var currentTime;
 var score = 0;
 
 var leaderboard = [];
@@ -38,7 +40,6 @@ var leaderboard = [];
 init();
 
 function init() {
-    console.log(location.pathname);
     // Load leaderboard from local storage if it exists
     var localLeaderboard = JSON.parse(localStorage.getItem("leaderboard"));
     if (localLeaderboard !== null) {
@@ -48,12 +49,11 @@ function init() {
     // If the page is the leaderboard, populate it
     if (location.pathname.endsWith("scoreboard.html")) {
         leaderboard.forEach(function(entry) {
-            var leaderboardEntry = document.createElement("li");
-            console.log(entry);
-            leaderboardEntry.textContent = entry.score.toLocaleString('en-US',
+            var entryEl = document.createElement("li");
+            entryEl.textContent = entry.score.toLocaleString('en-US',
                 {minimumIntegerDigits: 2, useGrouping: false}) + " - " +
                 entry.initials;
-            scoreboard.append(leaderboardEntry);
+            leaderboardEl.append(entryEl);
         });
     // If the page is the index, set it up
     } else {
@@ -64,23 +64,31 @@ function init() {
 }
 
 function startQuiz() {
+    // Create and populate the quiz elements of the page
     createBoard();
+
+    // Set up a timer to count down from the set time
+    currentTime = MAX_TIME;
+    timer = setInterval(function () {
+        currentTime--;
+        tick(currentTime);
+        }, 1000);
 }
 
 // Quiz initialisation function
 function createBoard() {
     // Clear the quiz board
-    quizBoard.innerHTML = "";
+    quizBoardEl.innerHTML = "";
 
     // Create question heading and four choice buttons
-    var questionHeading = document.createElement("h3");
-    questionHeading.setAttribute("id", "question_heading")
-    quizBoard.append(questionHeading);
+    var headingEl = document.createElement("h3");
+    headingEl.setAttribute("id", "question_heading")
+    quizBoardEl.append(headingEl);
     for (i = 0; i < NUM_CHOICES; i++) {
-        var button = document.createElement("button");
-        button.setAttribute("id", "choice_"+(i+1));
-        quizBoard.append(button);
-        quizBoard.append(document.createElement("br"));
+        var choiceBtn = document.createElement("button");
+        choiceBtn.setAttribute("id", "choice_"+(i+1));
+        quizBoardEl.append(choiceBtn);
+        quizBoardEl.append(document.createElement("br"));
     }
 
     // Randomise the order of the questions in the quiz
@@ -98,50 +106,60 @@ function populateQuestion(question) {
     answerArray = shuffleList(answerArray);
 
     // Populate question heading
-    var questionHeading = document.querySelector("#question_heading");
-    questionHeading.textContent = question.question;
+    var headingEl = document.querySelector("#question_heading");
+    headingEl.textContent = question.question;
 
     // Populate choice buttons
     for (i=0; i < NUM_CHOICES; i++) {
-        var button = document.querySelector("#choice_"+(i+1));
-        button.textContent = answerArray[i];
-        button.addEventListener("click", selectAnswer);
+        var choiceBtn = document.querySelector("#choice_"+(i+1));
+        choiceBtn.textContent = answerArray[i];
+        choiceBtn.addEventListener("click", selectAnswer);
+    }
+}
+
+// Function to perform every second through the timer
+function tick(timeLeft) {
+    timerEl.textContent = Math.max(currentTime, 0);
+    if (timeLeft <= 0) {
+        clearInterval(timer);
+        endQuiz("Time's up!");
+        return;
     }
 }
 
 // Quiz end screen initialisation function
 function endQuiz(heading) {
     // Clear the quiz board
-    quizBoard.innerHTML = "";
+    quizBoardEl.innerHTML = "";
 
     // Create and populate end screen content
-    var endingHeading = document.createElement("h2");
-    endingHeading.textContent = heading;
-    quizBoard.append(endingHeading);
+    var headingEl = document.createElement("h2");
+    headingEl.textContent = heading;
+    quizBoardEl.append(headingEl);
 
-    var endingText = document.createElement("p");
-    endingText.textContent = "Your final score is " + score + 
+    var textEl = document.createElement("p");
+    textEl.textContent = "Your final score is " + score + 
         ". Enter your initials below to be added to the leaderboard!";
-    quizBoard.append(endingText);
+    quizBoardEl.append(textEl);
 
-    var initialsForm = document.createElement("input");
-    initialsForm.setAttribute("id", "initials");
-    initialsForm.setAttribute("type", "text");
-    initialsForm.setAttribute("placeholder", "Enter your initials here");
-    quizBoard.append(initialsForm);
+    var formEl = document.createElement("input");
+    formEl.setAttribute("id", "initials");
+    formEl.setAttribute("type", "text");
+    formEl.setAttribute("placeholder", "Enter your initials here");
+    quizBoardEl.append(formEl);
 
-    var submitButton = document.createElement("button");
-    submitButton.textContent = "Submit";
-    submitButton.addEventListener("click", saveAndReset);
-    quizBoard.append(submitButton);
+    var submitBtn = document.createElement("button");
+    submitBtn.textContent = "Submit";
+    submitBtn.addEventListener("click", saveAndReset);
+    quizBoardEl.append(submitBtn);
 }
 
 // Function to save scores to local memory and return to default start screen;
 function saveAndReset() {
     // Save the score achieved and initials entered
-    var initialsForm = document.querySelector("#initials");
-    if (initialsForm.value.trim()) {
-        leaderboard.push({initials: initialsForm.value.trim(), score: score});
+    var formEl = document.querySelector("#initials");
+    if (formEl.value.trim()) {
+        leaderboard.push({initials: formEl.value.trim(), score: score});
     }
     // Sort the leaderboard in descending score order, and save to local
     // storage
@@ -157,11 +175,15 @@ function saveAndReset() {
 function selectAnswer() {
     if (this.textContent === currentCorrectAnswer) {
         score++;
+    } else {
+        currentTime -= 10;
+        timerEl.textContent = Math.max(currentTime, 0);
     }
 
     if (questionList.length > 0) {
         populateQuestion(questionList.shift());
     } else {
+        clearInterval(timer);
         endQuiz("That's the end of the quiz!");
     }
 }
