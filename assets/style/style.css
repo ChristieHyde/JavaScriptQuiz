@@ -1,3 +1,4 @@
+/* Variable declarations */
 :root {
     --dark: #012a36;
     --popout: #1f6076;
@@ -5,17 +6,13 @@
     --pale: #ddf3ff;
     --white: white;
     --black: black;
-    margin-left: 10%;
-    margin-right: 10%;
 }
 
+/* Default styles */
 body {
+    margin: 10px 10%;
     background-color: var(--dark);
     font-family:Verdana, Geneva, Tahoma, sans-serif;
-}
-
-a {
-    color: var(--pale);
 }
 
 h1, h2, h3 {
@@ -23,6 +20,16 @@ h1, h2, h3 {
     margin: 20px 0px;
 }
 
+a {
+    color: var(--pale);
+}
+
+ul {
+    list-style-type: none;
+    line-height: 150%;
+}
+
+/* Styles for the main card sections*/
 #quiz_board, #scoreboard {
     width: 80%;
     margin: 20px auto;
@@ -33,19 +40,11 @@ h1, h2, h3 {
     box-shadow: 0px 0px 10px var(--black);
 }
 
-#quiz_board h2 {
-    margin-left: 0;
-}
-
 #scoreboard {
     padding-left: 40px;
 }
 
-ul {
-    list-style-type: none;
-    line-height: 150%;
-}
-
+/* Styles for the timer displays */
 #timer_heading {
     display: inline;
     margin-left: 10%;
@@ -56,6 +55,7 @@ ul {
     margin-left: 0;
 }
 
+/* Styles for interactive elements */
 button {
     border: none;
     border-radius: 5px;

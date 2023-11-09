@@ -3,25 +3,35 @@ const TIME_DEDUCT = 10
 const NUM_CHOICES = 4;
 
 const QUESTION_SET = [
-    { question: "1",
-        correctAnswer: "a",
-        incorrectAnswers: ["b","c","d"]
+    { question: 'What does "document.querySelector("#name")" return?',
+        correctAnswer: 'The HTML element with ID "name"',
+        incorrectAnswers: ['The name of the HTML document',
+                            'The internal document ID',
+                            'The HTML element with class "name"']
     },
-    { question: "2",
-    correctAnswer: "e",
-    incorrectAnswers: ["f","g","h"]
+    { question: "Which function sets a timer event?",
+    correctAnswer: "setInterval()",
+    incorrectAnswers: ["setTimer()",
+                        "createTimer()",
+                        "count()"]
     },
-    { question: "3",
-    correctAnswer: "i",
-    incorrectAnswers: ["j","k","l"]
+    { question: "Which of the following is not a DOM event?",
+    correctAnswer: "enter",
+    incorrectAnswers: ["click",
+                        "submit",
+                        "keydown"]
     },
-    { question: "4",
-    correctAnswer: "m",
-    incorrectAnswers: ["n","o","p"]
+    { question: "What does event.preventDefault() prevent?",
+    correctAnswer: "The page from reloading",
+    incorrectAnswers: ["The page from closing",
+                        "A form from submitting",
+                        "A file from being downloaded"]
     },
-    { question: "5",
-    correctAnswer: "q",
-    incorrectAnswers: ["r","s","t"]
+    { question: "Propagation is also known as:",
+    correctAnswer: "event bubbling",
+    incorrectAnswers: ["area overlapping",
+                        "cascading",
+                        "event exploding"]
     }
 ]
 
@@ -33,8 +43,8 @@ var questionList;
 var currentCorrectAnswer;
 var timer;
 var currentTime;
-var score = 0;
 
+var score = 0;
 var leaderboard = [];
 
 init();
@@ -54,6 +64,14 @@ function init() {
                 {minimumIntegerDigits: 2, useGrouping: false}) + " - " +
                 entry.initials;
             leaderboardEl.append(entryEl);
+        });
+
+        // Add an event listener for the clear-leaderboard button
+        var clearBtn = document.querySelector("#clear_btn");
+        console.log(clearBtn);
+        clearBtn.addEventListener('click', function () {
+            localStorage.removeItem("leaderboard");
+            leaderboardEl.innerHTML = "";
         });
     // If the page is the index, set it up
     } else {
@@ -142,6 +160,24 @@ function tick(timeLeft) {
     }
 }
 
+// Function to check if an answer is correct, and if the quiz should end
+function selectAnswer() {
+    if (this.textContent === currentCorrectAnswer) {
+        score++;
+    } else {
+        currentTime -= 10;
+        timerEl.textContent = Math.max(currentTime, 0);
+        flash(timerEl);
+    }
+
+    if (questionList.length > 0) {
+        populateQuestion(questionList.shift());
+    } else {
+        clearInterval(timer);
+        endQuiz("That's the end of the quiz!");
+    }
+}
+
 // Quiz end screen initialisation function
 function endQuiz(heading) {
     // Clear the quiz board
@@ -184,24 +220,6 @@ function saveAndReset() {
     // Reset the page;
     score = 0;
     location.reload();
-}
-
-// Function to check if an answer is correct, and if the quiz should end
-function selectAnswer() {
-    if (this.textContent === currentCorrectAnswer) {
-        score++;
-    } else {
-        currentTime -= 10;
-        timerEl.textContent = Math.max(currentTime, 0);
-        flash(timerEl);
-    }
-
-    if (questionList.length > 0) {
-        populateQuestion(questionList.shift());
-    } else {
-        clearInterval(timer);
-        endQuiz("That's the end of the quiz!");
-    }
 }
 
 // Function to make text flash for a set time
