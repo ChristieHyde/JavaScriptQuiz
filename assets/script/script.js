@@ -44,6 +44,9 @@ var currentCorrectAnswer;
 var timer;
 var currentTime;
 
+var fadeTimer;
+var fadePause;
+
 var score = 0;
 var leaderboard = [];
 
@@ -68,7 +71,6 @@ function init() {
 
         // Add an event listener for the clear-leaderboard button
         var clearBtn = document.querySelector("#clear_btn");
-        console.log(clearBtn);
         clearBtn.addEventListener('click', function () {
             localStorage.removeItem("leaderboard");
             leaderboardEl.innerHTML = "";
@@ -95,6 +97,7 @@ function startQuiz() {
 
     // Set up a timer to count down from the set time
     currentTime = MAX_TIME;
+    timerEl.textContent = Math.max(currentTime, 0);
     timer = setInterval(function () {
         currentTime--;
         tick(currentTime);
@@ -110,7 +113,7 @@ function createBoard() {
 
     // Create question heading
     var headingEl = document.createElement("h3");
-    headingEl.setAttribute("id", "question_heading")
+    headingEl.setAttribute("id", "question_heading");
     quizBoardEl.append(headingEl);
 
     // Create choice buttons in an unordered list
@@ -162,14 +165,27 @@ function tick(timeLeft) {
 
 // Function to check if an answer is correct, and if the quiz should end
 function selectAnswer() {
+    // If the answer is correct, increase score; if not, decrease timer
+    var feedbackEl = document.querySelector("#correct_feedback");
+    feedbackEl.setAttribute("style", "opacity: 1");
     if (this.textContent === currentCorrectAnswer) {
+        feedbackEl.textContent = "Correct";
         score++;
     } else {
+        feedbackEl.textContent = "Incorrect";
         currentTime -= 10;
         timerEl.textContent = Math.max(currentTime, 0);
         flash(timerEl);
     }
+    // Fade the feedback out after a set time
+    clearInterval(fadeTimer);
+    clearInterval(fadePause);
+    fadePause = setInterval(function () {
+        fade(feedbackEl);
+        clearInterval(fadePause);
+    }, 1800);
 
+    // If there are still questions, load the next one; if not, load the end
     if (questionList.length > 0) {
         populateQuestion(questionList.shift());
     } else {
@@ -241,6 +257,23 @@ function flash(element) {
             clearInterval(flashTimer);
         }
     }, flashLength);
+}
+
+// Function to make text fade out
+function fade(element) {
+    var fadeLength = 2000;
+    var frames = 60;
+    var opacity = window.getComputedStyle(element).getPropertyValue("opacity");
+
+    fadeTimer = setInterval (function () {
+        opacity = Math.max(opacity - frames/fadeLength, 0);
+        element.setAttribute("style", "opacity: " + opacity)
+
+        if (opacity === 0) {
+            element.removeAttribute("style");
+            clearInterval(fadeTimer)
+        }
+    }, (fadeLength/frames));
 }
 
 // Function to randomise the order of a list

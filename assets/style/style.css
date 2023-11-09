@@ -44,7 +44,7 @@ ul {
     padding-left: 40px;
 }
 
-/* Styles for the timer displays */
+/* Styles for the timer and feedback displays */
 #timer_heading {
     display: inline;
     margin-left: 10%;
@@ -53,6 +53,12 @@ ul {
 #timer {
     display: inline;
     margin-left: 0;
+}
+
+#correct_feedback {
+    display: inline;
+    margin-left: 5%;
+    opacity: 0%;
 }
 
 /* Styles for interactive elements */
