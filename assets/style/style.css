@@ -1,0 +1,77 @@
+:root {
+    --dark: #012a36;
+    --popout: #1f6076;
+    --accent: #77e5f0;
+    --pale: #ddf3ff;
+    --white: white;
+    --black: black;
+    margin-left: 10%;
+    margin-right: 10%;
+}
+
+body {
+    background-color: var(--dark);
+    font-family:Verdana, Geneva, Tahoma, sans-serif;
+}
+
+a {
+    color: var(--pale);
+}
+
+h1, h2, h3 {
+    color: var(--accent);
+    margin: 20px 0px;
+}
+
+#quiz_board, #scoreboard {
+    width: 80%;
+    margin: 20px auto;
+    padding: 10px 20px 20px 20px;
+    background-color: var(--popout);
+    color: var(--pale);
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px var(--black);
+}
+
+#quiz_board h2 {
+    margin-left: 0;
+}
+
+#scoreboard {
+    padding-left: 40px;
+}
+
+ul {
+    list-style-type: none;
+    line-height: 150%;
+}
+
+#timer_heading {
+    display: inline;
+    margin-left: 10%;
+}
+
+#timer {
+    display: inline;
+    margin-left: 0;
+}
+
+button {
+    border: none;
+    border-radius: 5px;
+    box-shadow: 0px 0px 3px var(--black);
+    background-color: var(--accent);
+    font-family:Verdana, Geneva, Tahoma, sans-serif;
+}
+
+#clear_btn {
+    margin-left: 10%;
+}
+
+input {
+    border: none;
+    box-shadow: 0px 0px 3px var(--black);
+    background-color: var(--pale);
+    color: var(--popout);
+    margin-right: 15px;
+}

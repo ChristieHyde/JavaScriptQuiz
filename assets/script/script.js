@@ -60,10 +60,18 @@ function init() {
         // Add an event listener to the start button
         var startQuizBtn = document.querySelector("#start_btn");
         startQuizBtn.addEventListener('click', startQuiz);
+
+        // Hide the timer elements until the quiz starts
+        var timerHeadingEl = document.querySelector("#timer_heading");
+        timerHeadingEl.setAttribute("style", "display: none")
     }
 }
 
 function startQuiz() {
+    // Show the timer elements
+    var timerHeadingEl = document.querySelector("#timer_heading");
+    timerHeadingEl.removeAttribute("style");
+
     // Create and populate the quiz elements of the page
     createBoard();
 
@@ -77,19 +85,26 @@ function startQuiz() {
 
 // Quiz initialisation function
 function createBoard() {
-    // Clear the quiz board
+    // Clear the quiz board and disable leaderboard link
     quizBoardEl.innerHTML = "";
+    var leaderboardLinkEl = document.querySelector("#scoreboard_link");
+    leaderboardLinkEl.setAttribute("href", "javascript: void(0)");
 
-    // Create question heading and four choice buttons
+    // Create question heading
     var headingEl = document.createElement("h3");
     headingEl.setAttribute("id", "question_heading")
     quizBoardEl.append(headingEl);
+
+    // Create choice buttons in an unordered list
+    var choiceListEl = document.createElement("ul");
     for (i = 0; i < NUM_CHOICES; i++) {
         var choiceBtn = document.createElement("button");
         choiceBtn.setAttribute("id", "choice_"+(i+1));
-        quizBoardEl.append(choiceBtn);
-        quizBoardEl.append(document.createElement("br"));
+        var choiceItemEl = document.createElement("li");
+        choiceItemEl.append(choiceBtn);
+        choiceListEl.append(choiceItemEl);
     }
+    quizBoardEl.append(choiceListEl);
 
     // Randomise the order of the questions in the quiz
     questionList = shuffleList(QUESTION_SET);
@@ -178,6 +193,7 @@ function selectAnswer() {
     } else {
         currentTime -= 10;
         timerEl.textContent = Math.max(currentTime, 0);
+        flash(timerEl);
     }
 
     if (questionList.length > 0) {
@@ -186,6 +202,27 @@ function selectAnswer() {
         clearInterval(timer);
         endQuiz("That's the end of the quiz!");
     }
+}
+
+// Function to make text flash for a set time
+function flash(element) {
+    var numFlashes = 3;
+    var flashLength = 200;
+    var flashColor = 'red';
+
+    // Set the timer to make the text flash
+    var defaultColor = window.getComputedStyle(element).getPropertyValue("color");
+    numFlashes *= 2; // to account for setting the text to default between flashes
+    var flashTimer = setInterval(function () {
+        numFlashes--;
+        var color = (window.getComputedStyle(element).getPropertyValue("color") == defaultColor ? flashColor : defaultColor)
+        element.setAttribute("style", "color: " + color);
+
+        if (numFlashes <= 0 ) {
+            element.removeAttribute("style");
+            clearInterval(flashTimer);
+        }
+    }, flashLength);
 }
 
 // Function to randomise the order of a list
