@@ -33,8 +33,8 @@ var questionList;
 var currentCorrectAnswer;
 var timer;
 var currentTime;
-var score = 0;
 
+var score = 0;
 var leaderboard = [];
 
 init();
@@ -150,6 +150,24 @@ function tick(timeLeft) {
     }
 }
 
+// Function to check if an answer is correct, and if the quiz should end
+function selectAnswer() {
+    if (this.textContent === currentCorrectAnswer) {
+        score++;
+    } else {
+        currentTime -= 10;
+        timerEl.textContent = Math.max(currentTime, 0);
+        flash(timerEl);
+    }
+
+    if (questionList.length > 0) {
+        populateQuestion(questionList.shift());
+    } else {
+        clearInterval(timer);
+        endQuiz("That's the end of the quiz!");
+    }
+}
+
 // Quiz end screen initialisation function
 function endQuiz(heading) {
     // Clear the quiz board
@@ -192,24 +210,6 @@ function saveAndReset() {
     // Reset the page;
     score = 0;
     location.reload();
-}
-
-// Function to check if an answer is correct, and if the quiz should end
-function selectAnswer() {
-    if (this.textContent === currentCorrectAnswer) {
-        score++;
-    } else {
-        currentTime -= 10;
-        timerEl.textContent = Math.max(currentTime, 0);
-        flash(timerEl);
-    }
-
-    if (questionList.length > 0) {
-        populateQuestion(questionList.shift());
-    } else {
-        clearInterval(timer);
-        endQuiz("That's the end of the quiz!");
-    }
 }
 
 // Function to make text flash for a set time
